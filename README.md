@@ -88,13 +88,13 @@ cp .env.example .env
 
 1. 打开 [chat.deepseek.com](https://chat.deepseek.com) 并登录
 2. 打开浏览器开发者工具（F12）→ 切换到 **Console（控制台）** 面板
-3. 输入以下命令并回车，即可复制完整的 cookie 字符串：
+3. 输入以下命令并回车，即可复制 token：
 
 ```js
-copy(document.cookie)
+copy(JSON.parse(localStorage.getItem("userToken")).value)
 ```
 
-4. 粘贴到 `DEEPSEEK_COOKIE` 环境变量中即可
+4. 粘贴到 `DEEPSEEK_AUTH_TOKEN` 环境变量中即可
 
 > 注意：凭据会过期，过期后需要重新获取。Token 过期的典型表现是请求返回 Cloudflare 验证页面。
 
