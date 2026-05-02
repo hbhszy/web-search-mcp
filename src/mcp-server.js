@@ -204,8 +204,18 @@ class McpServer {
       });
 
       const content = [];
-      if (result.text) {
-        content.push({ type: "text", text: result.text });
+      let responseText = result.text || "";
+      if (result.searchResults?.length) {
+        const sources = result.searchResults
+          .filter((r) => r.url)
+          .map((r) => `- [${r.title || r.url}](${r.url})`)
+          .join("\n");
+        if (sources) {
+          responseText += `\n\nSources:\n${sources}`;
+        }
+      }
+      if (responseText) {
+        content.push({ type: "text", text: responseText });
       }
       if (args.thinking && result.thinkingText) {
         content.push({ type: "text", text: `[Thinking]\n${result.thinkingText}` });

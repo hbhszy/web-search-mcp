@@ -276,6 +276,7 @@ class DeepSeekWebClient {
       totalTokens: 0,
       currentFragmentType: "response",
       modelType: modelType || "default",
+      searchResults: [],
     };
 
     const decoder = new TextDecoder();
@@ -358,6 +359,14 @@ class DeepSeekWebClient {
         typeof payload.v === "string"
       ) {
         emitContent(payload.v);
+        return;
+      }
+
+      if (
+        payload.p === "response/fragments/-1/results" &&
+        Array.isArray(payload.v)
+      ) {
+        state.searchResults.push(...payload.v);
         return;
       }
 
@@ -491,6 +500,7 @@ class DeepSeekWebClient {
         thinkingText: state.thinkingText,
         totalTokens: state.totalTokens,
         modelType: state.modelType,
+        searchResults: state.searchResults,
       };
     } finally {
       if (sessionId) {
