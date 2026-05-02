@@ -62,47 +62,44 @@ class McpServer {
     this.buffer = Buffer.concat([this.buffer, chunk]);
 
     while (true) {
-      const headerEnd = this.buffer.indexOf("\r\n\r\n");
-      if (headerEnd < 0) {
+      if (!this._readLineMessage()) {
         break;
       }
-
-      const headerStr = this.buffer.slice(0, headerEnd).toString("utf8");
-      const match = /Content-Length:\s*(\d+)/i.exec(headerStr);
-      if (!match) {
-        this.log.error("Missing Content-Length header");
-        this.buffer = this.buffer.slice(headerEnd + 4);
-        continue;
-      }
-
-      const contentLength = parseInt(match[1], 10);
-      const bodyStart = headerEnd + 4;
-
-      if (this.buffer.length < bodyStart + contentLength) {
-        break; // wait for more data
-      }
-
-      const bodyBytes = this.buffer.slice(bodyStart, bodyStart + contentLength);
-      this.buffer = this.buffer.slice(bodyStart + contentLength);
-
-      let message;
-      try {
-        message = JSON.parse(bodyBytes.toString("utf8"));
-      } catch {
-        this._sendError(null, -32700, "Parse error");
-        continue;
-      }
-
-      this._dispatch(message);
     }
+  }
+
+  _readLineMessage() {
+    const newlineIndex = this.buffer.indexOf("\n");
+    if (newlineIndex < 0) {
+      return false;
+    }
+
+    const lineBytes = this.buffer.slice(0, newlineIndex);
+    this.buffer = this.buffer.slice(newlineIndex + 1);
+    const line = lineBytes.toString("utf8").replace(/\r$/, "").trim();
+    if (!line) {
+      return true;
+    }
+
+    this._dispatchJson(line);
+    return true;
+  }
+
+  _dispatchJson(json) {
+    let message;
+    try {
+      message = JSON.parse(json);
+    } catch {
+      this._sendError(null, -32700, "Parse error");
+      return;
+    }
+
+    this._dispatch(message);
   }
 
   _send(response) {
     const json = JSON.stringify(response);
-    const bytes = Buffer.from(json, "utf8");
-    const header = `Content-Length: ${bytes.length}\r\n\r\n`;
-    this.output.write(header);
-    this.output.write(bytes);
+    this.output.write(`${json}\n`);
   }
 
   _sendError(id, code, message) {

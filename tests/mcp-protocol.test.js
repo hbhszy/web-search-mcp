@@ -24,26 +24,11 @@ function createTestServer() {
   });
 
   function getMessages() {
-    const messages = [];
-    const combined = Buffer.concat(chunks);
-    let pos = 0;
-
-    while (pos < combined.length) {
-      const headerEnd = combined.indexOf("\r\n\r\n", pos);
-      if (headerEnd < 0) break;
-
-      const header = combined.slice(pos, headerEnd).toString("utf8");
-      const match = /Content-Length:\s*(\d+)/i.exec(header);
-      if (!match) break;
-
-      const contentLength = parseInt(match[1], 10);
-      const bodyStart = headerEnd + 4;
-      const body = combined.slice(bodyStart, bodyStart + contentLength).toString("utf8");
-      messages.push(JSON.parse(body));
-      pos = bodyStart + contentLength;
-    }
-
-    return messages;
+    return Buffer.concat(chunks)
+      .toString("utf8")
+      .split(/\r?\n/)
+      .filter(Boolean)
+      .map((line) => JSON.parse(line));
   }
 
   function reset() {
@@ -52,9 +37,7 @@ function createTestServer() {
 
   function send(message) {
     const json = JSON.stringify(message);
-    const bytes = Buffer.from(json, "utf8");
-    const header = `Content-Length: ${bytes.length}\r\n\r\n`;
-    server._onData(Buffer.concat([Buffer.from(header), bytes]));
+    server._onData(Buffer.from(`${json}\n`));
   }
 
   return { server, send, getMessages, reset };
