@@ -87,11 +87,16 @@ cp .env.example .env
 ## 获取 DeepSeek 凭据
 
 1. 打开 [chat.deepseek.com](https://chat.deepseek.com) 并登录
-2. 打开浏览器开发者工具（F12）
-3. **获取 Auth Token**：在 Network 面板中找到任意 API 请求，查看请求头中的 `Authorization` 字段
-4. **获取 Cookie**：在 Application 面板中复制完整的 cookie 字符串
+2. 打开浏览器开发者工具（F12）→ 切换到 **Console（控制台）** 面板
+3. 输入以下命令并回车，即可复制完整的 cookie 字符串：
 
-> 注意：凭据可能会过期，需要定期刷新。
+```js
+copy(document.cookie)
+```
+
+4. 粘贴到 `DEEPSEEK_COOKIE` 环境变量中即可
+
+> 注意：凭据会过期，过期后需要重新获取。Token 过期的典型表现是请求返回 Cloudflare 验证页面。
 
 ## 测试
 
