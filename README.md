@@ -21,7 +21,7 @@
   "mcpServers": {
     "web-search": {
       "command": "node",
-      "args": ["D:/ai-projects/web-search-mcp/src/index.js"],
+      "args": ["path/to/web-search-mcp/src/index.js"],
       "env": {
         "DEEPSEEK_AUTH_TOKEN": "your_token_here"
       }
@@ -39,7 +39,7 @@
   "mcpServers": {
     "web-search": {
       "command": "node",
-      "args": ["D:/ai-projects/web-search-mcp/src/index.js"],
+      "args": ["path/to/web-search-mcp/src/index.js"],
       "env": {
         "DEEPSEEK_AUTH_TOKEN": "your_token_here"
       }
